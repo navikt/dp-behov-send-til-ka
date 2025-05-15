@@ -22,12 +22,11 @@ internal object Configuration {
                 "KLAGE_API_URL" to "http://kabal-api",
                 // TODO: fiks scope
                 "KLAGE_API_SCOPE" to "api://dev-gcp.todo.todo/.default",
-                ),
+            ),
         )
 
     val properties =
         ConfigurationProperties.systemProperties() overriding EnvironmentVariables() overriding defaultProperties
-
 
     val klageApiUrl: String = properties[Key("KLAGE_API_URL", stringType)]
     val klageApiScope: String = properties[Key("KLAGE_API_SCOPE", stringType)]
@@ -35,7 +34,6 @@ internal object Configuration {
         azureAdClient.clientCredentials(klageApiScope).access_token
             ?: throw RuntimeException("Klarte ikke hente token")
     }
-
 
     val config: Map<String, String> =
         properties.list().reversed().fold(emptyMap()) { map, pair ->

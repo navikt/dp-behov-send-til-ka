@@ -46,34 +46,38 @@ internal class KlageBehovløser(
         val fagsakId = packet["fagsakId"].asText()
         val behandlendeEnhet = packet["behandlendeEnhet"].asText()
         val hjemler = packet["hjemler"].map { it.asText() }
-        val tilknyttedeJournalposter: List<Journalposter> = packet["tilknyttedeJournalposter"].takeIf(JsonNode::isArray)?.map {
-            it.takeIf(JsonNode::isObject).let { jp ->
-                Journalposter(
-                    jp?.get("type")!!.asText(),
-                    jp.get("journalpostId")!!.asText()
-                )
-            }
-        } ?: emptyList()
-        val prosessFullmektig: ProsessFullmektig? = packet["prosessFullmektig"].takeIf(JsonNode::isObject).let {
-            ProsessFullmektig(
-                id = it?.get("id")?.let { id ->
-                    PersonIdentId(
-                        verdi = id["verdi"].asText(),
-                    )
-                },
-                navn = it?.get("navn")?.asText(),
-                adresse = it?.get("adresse")?.let { adresse ->
-                    Adresse(
-                        addresselinje1 = adresse.get("adresselinje1")?.asText(),
-                        addresselinje2 = adresse.get("adresselinje2")?.asText(),
-                        addresselinje3 = adresse.get("adresselinje3")?.asText(),
-                        postnummer = adresse.get("postnummer")?.asText(),
-                        poststed = adresse.get("poststed")?.asText(),
-                        land = adresse.get("land")!!.asText()
+        val tilknyttedeJournalposter: List<Journalposter> =
+            packet["tilknyttedeJournalposter"].takeIf(JsonNode::isArray)?.map {
+                it.takeIf(JsonNode::isObject).let { jp ->
+                    Journalposter(
+                        jp?.get("type")!!.asText(),
+                        jp.get("journalpostId")!!.asText(),
                     )
                 }
-            )
-        }
+            } ?: emptyList()
+        val prosessFullmektig: ProsessFullmektig? =
+            packet["prosessFullmektig"].takeIf(JsonNode::isObject).let {
+                ProsessFullmektig(
+                    id =
+                        it?.get("id")?.let { id ->
+                            PersonIdentId(
+                                verdi = id["verdi"].asText(),
+                            )
+                        },
+                    navn = it?.get("navn")?.asText(),
+                    adresse =
+                        it?.get("adresse")?.let { adresse ->
+                            Adresse(
+                                addresselinje1 = adresse.get("adresselinje1")?.asText(),
+                                addresselinje2 = adresse.get("adresselinje2")?.asText(),
+                                addresselinje3 = adresse.get("adresselinje3")?.asText(),
+                                postnummer = adresse.get("postnummer")?.asText(),
+                                poststed = adresse.get("poststed")?.asText(),
+                                land = adresse.get("land")!!.asText(),
+                            )
+                        },
+                )
+            }
         withLoggingContext("behandlingId" to "$behandlingId") {
             runBlocking {
                 klageKlient.registrerKlage(
@@ -83,7 +87,7 @@ internal class KlageBehovløser(
                     behandlendeEnhet = behandlendeEnhet,
                     hjemler = hjemler,
                     tilknyttedeJournalposter = tilknyttedeJournalposter,
-                    prosessFullmektig = prosessFullmektig
+                    prosessFullmektig = prosessFullmektig,
                 )
             }.also { resultat ->
                 when (resultat.isSuccess) {
