@@ -2,10 +2,10 @@ name: Build and deploy
 
 
 #Kommenter inn
-#on:
-#  push:
-#    branches-ignore:
-#      - 'dependabot/**'
+on:
+  push:
+    branches-ignore:
+      - 'dependabot/**'
 
 jobs:
   build:
