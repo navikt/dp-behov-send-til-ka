@@ -7,15 +7,16 @@ on:
     branches-ignore:
       - 'dependabot/**'
 
+permissions: # Sjekk https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs
+  contents: "write"
+  checks: "write"
+  pull-requests: "write"
+  id-token: "write"
+
 jobs:
   build:
     name: Build and publish Docker image
     runs-on: ubuntu-latest
-    permissions: # Sjekk https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs
-      contents: "write"
-      checks: "write"
-      pull-requests: "write"
-      id-token: "write"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
