@@ -30,7 +30,7 @@ jobs:
         with:
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
           dependency-graph: generate-and-submit
-        run: ./gradlew --configuration-cache build
+      - run: ./gradlew --configuration-cache build
 
       - name: docker-build-push
         uses: nais/docker-build-push@v0
