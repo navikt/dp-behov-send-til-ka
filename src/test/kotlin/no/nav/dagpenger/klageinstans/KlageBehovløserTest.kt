@@ -151,7 +151,14 @@ class KlageBehovløserTest {
                 "ident" : "$ident",
                 "fagsakId" : "$fagsakId",
                 "behandlendeEnhet" : "$behandlendeEnhet",
-                "hjemler": ["FTRL_4_2", "FTRL_4_9", "FTRL_4_18"]
+                "hjemler": ["FTRL_4_2", "FTRL_4_9", "FTRL_4_18"],
+                "prosessfullmektigNavn": null,
+                "prosessfullmektigAdresselinje1": null,
+                "prosessfullmektigAdresselinje2": null,
+                "prosessfullmektigAdresselinje3": null,
+                "prosessfullmektigPostnummer": null,
+                "prosessfullmektigPoststed": null,
+                "prosessfullmektigLand": null
             }
             
             """.trimIndent(),
