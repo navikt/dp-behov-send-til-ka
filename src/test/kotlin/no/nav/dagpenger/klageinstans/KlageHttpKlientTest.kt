@@ -3,6 +3,7 @@ package no.nav.dagpenger.klageinstans
 import io.kotest.assertions.json.shouldEqualSpecifiedJsonIgnoringOrder
 import io.kotest.matchers.shouldBe
 import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respondBadRequest
 import io.ktor.client.engine.mock.respondOk
 import io.ktor.client.engine.mock.toByteArray
 import io.ktor.http.HttpHeaders
@@ -12,6 +13,26 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 
 class KlageHttpKlientTest {
+    private val type = "ANKE"
+    private val behandlingId = UUIDv7.ny().toString()
+    private val ident = "11111111111"
+    private val fagsakId = UUIDv7.ny().toString()
+    private val behandlendeEnhet = "4408"
+    private val hjemler = listOf("FTRL_4_2", "FTRL_4_9", "FTRL_4_18")
+    private val prosessFullmektig =
+        ProsessFullmektig(
+            navn = "Djevelens Advokat",
+            adresse =
+                Adresse(
+                    addresselinje1 = "Sydenveien 1",
+                    addresselinje2 = "Poste restante",
+                    addresselinje3 = "Teisen postkontor",
+                    postnummer = "0666",
+                    poststed = "Oslo",
+                    land = "NO",
+                ),
+        )
+
     @Test
     fun `Oversend klage til klageinstans`() {
         var requestBody: String? = null
@@ -32,26 +53,6 @@ class KlageHttpKlientTest {
                     httpClient(
                         prometheusRegistry = PrometheusRegistry(),
                         engine = mockEngine,
-                    ),
-            )
-
-        val type = "ANKE"
-        val behandlingId = UUIDv7.ny().toString()
-        val ident = "11111111111"
-        val fagsakId = UUIDv7.ny().toString()
-        val behandlendeEnhet = "4408"
-        val hjemler = listOf("FTRL_4_2", "FTRL_4_9", "FTRL_4_18")
-        val prosessFullmektig =
-            ProsessFullmektig(
-                navn = "Djevelens Advokat",
-                adresse =
-                    Adresse(
-                        addresselinje1 = "Sydenveien 1",
-                        addresselinje2 = "Poste restante",
-                        addresselinje3 = "Teisen postkontor",
-                        postnummer = "0666",
-                        poststed = "Oslo",
-                        land = "NO",
                     ),
             )
 
@@ -107,5 +108,35 @@ class KlageHttpKlientTest {
                 """.trimIndent()
             ),
         )
+    }
+
+    @Test
+    fun `Bad request fører til failure-resultat`() {
+        val kabalKlient =
+            KlageHttpKlient(
+                klageApiUrl = "http://localhost:8080",
+                tokenProvider = { " " },
+                httpClient =
+                    httpClient(
+                        engine =
+                            MockEngine {
+                                respondBadRequest()
+                            },
+                    ),
+            )
+
+        val resultat: Result<HttpStatusCode> =
+            runBlocking {
+                kabalKlient.oversendKlageAnke(
+                    type = type,
+                    behandlingId = behandlingId,
+                    ident = ident,
+                    fagsakId = fagsakId,
+                    behandlendeEnhet = behandlendeEnhet,
+                    hjemler = hjemler,
+                    prosessFullmektig = prosessFullmektig,
+                )
+            }
+        resultat.isFailure shouldBe true
     }
 }

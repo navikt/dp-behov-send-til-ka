@@ -2,7 +2,10 @@ package no.nav.dagpenger.klageinstans
 
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import io.kotest.assertions.json.shouldEqualSpecifiedJsonIgnoringOrder
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respondBadRequest
 import io.ktor.http.HttpStatusCode
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -31,21 +34,21 @@ class KlageBehovløserTest {
                 ),
         )
 
-    private val klageKlient =
-        mockk<KlageHttpKlient>().also {
-            coEvery {
-                it.oversendKlageAnke(
-                    behandlingId = behandlingId,
-                    ident = ident,
-                    fagsakId = fagsakId,
-                    behandlendeEnhet = behandlendeEnhet,
-                    hjemler = hjemler,
-                )
-            } returns Result.success(HttpStatusCode.OK)
-        }
-
     @Test
     fun `Skal løse behov dersom filter matcher`() {
+        val klageKlient =
+            mockk<KlageHttpKlient>().also {
+                coEvery {
+                    it.oversendKlageAnke(
+                        behandlingId = behandlingId,
+                        ident = ident,
+                        fagsakId = fagsakId,
+                        behandlendeEnhet = behandlendeEnhet,
+                        hjemler = hjemler,
+                    )
+                } returns Result.success(HttpStatusCode.OK)
+            }
+
         KlageBehovløser(
             rapidsConnection = testRapid,
             klageKlient = klageKlient,
@@ -67,6 +70,29 @@ class KlageBehovløserTest {
                 }
             }
             """.trimIndent()
+    }
+
+    @Test
+    fun `Bad request fører til runtime exception`() {
+        val klageKlient =
+            KlageHttpKlient(
+                klageApiUrl = "http://localhost:8080",
+                tokenProvider = { " " },
+                httpClient =
+                    httpClient(
+                        engine =
+                            MockEngine {
+                                respondBadRequest()
+                            },
+                    ),
+            )
+        KlageBehovløser(
+            rapidsConnection = testRapid,
+            klageKlient = klageKlient,
+        )
+        shouldThrow<RuntimeException> {
+            testRapid.sendBehov()
+        }
     }
 
     private fun TestRapid.sendBehov() {
