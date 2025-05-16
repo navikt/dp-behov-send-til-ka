@@ -1,5 +1,5 @@
 # Ignore everything
 **
 
-# Except install target
-!build/install/**
+# Except libs target
+!build/libs/**
