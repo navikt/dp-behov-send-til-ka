@@ -1,7 +1,7 @@
 apiVersion: nais.io/v1alpha1
 kind: Application
 metadata:
-  name: dp-service-template
+  name: dp-behov-send-til-ka
   namespace: teamdagpenger
   labels:
     team: teamdagpenger
@@ -22,3 +22,20 @@ spec:
       memory: 256Mi
   secureLogs:
     enabled: true
+  kafka:
+    pool: "{{ kafka_pool }}"
+  azure:
+    application:
+      enabled: true
+  env:
+    - name: KLAGE_API_URL
+      value: {{ kabal.url }}
+    - name: KLAGE_API_SCOPE
+      value: {{ kabal.scope }}
+    - name: JDK_JAVA_OPTIONS
+      value: -XX:+UseParallelGC -XX:MaxRAMPercentage=50.0 -XX:ActiveProcessorCount=4
+
+  accessPolicy:
+    outbound:
+      external:
+        - host: {{ kabal.host }}

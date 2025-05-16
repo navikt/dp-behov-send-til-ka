@@ -1,0 +1,5 @@
+kafka_pool: nav-dev
+kabal:
+  url: "https://kabal-api.intern.dev.nav.no"
+  scope: "api://dev-gcp.klage.kabal-api/.default"
+  host: "kabal-api.intern.dev.nav.no"

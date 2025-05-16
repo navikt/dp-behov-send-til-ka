@@ -20,7 +20,6 @@ internal object Configuration {
                 "KAFKA_RAPID_TOPIC" to "teamdagpenger.rapid.v1",
                 "KAFKA_RESET_POLICY" to "LATEST",
                 "KLAGE_API_URL" to "http://kabal-api",
-                // TODO: fiks scope
                 "KLAGE_API_SCOPE" to "api://dev-gcp.todo.todo/.default",
             ),
         )
