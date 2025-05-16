@@ -13,6 +13,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 
 class KlageHttpKlientTest {
+    private val prometheusRegistry = PrometheusRegistry()
     private val type = "ANKE"
     private val behandlingId = UUIDv7.ny().toString()
     private val ident = "11111111111"
@@ -51,7 +52,7 @@ class KlageHttpKlientTest {
                 tokenProvider = { "token" },
                 httpClient =
                     httpClient(
-                        prometheusRegistry = PrometheusRegistry(),
+                        prometheusRegistry = prometheusRegistry,
                         engine = mockEngine,
                     ),
             )
@@ -118,6 +119,7 @@ class KlageHttpKlientTest {
                 tokenProvider = { " " },
                 httpClient =
                     httpClient(
+                        prometheusRegistry = prometheusRegistry,
                         engine =
                             MockEngine {
                                 respondBadRequest()
