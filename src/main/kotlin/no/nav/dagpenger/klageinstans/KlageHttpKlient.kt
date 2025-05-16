@@ -26,7 +26,8 @@ class KlageHttpKlient(
     private val tokenProvider: () -> String,
     private val httpClient: HttpClient = httpClient(),
 ) {
-    suspend fun registrerKlage(
+    suspend fun oversendKlageAnke(
+        type: String = "KLAGE",
         behandlingId: String,
         ident: String,
         fagsakId: String,
@@ -41,6 +42,7 @@ class KlageHttpKlient(
                 header(HttpHeaders.ContentType, ContentType.Application.Json)
                 setBody(
                     KlageinstansOversendelse(
+                        type = type,
                         sakenGjelder =
                             PersonIdent(
                                 id =
@@ -102,7 +104,6 @@ internal data class PersonIdent(
 )
 
 data class ProsessFullmektig(
-    val id: PersonIdentId?,
     val navn: String?,
     val adresse: Adresse?,
 )

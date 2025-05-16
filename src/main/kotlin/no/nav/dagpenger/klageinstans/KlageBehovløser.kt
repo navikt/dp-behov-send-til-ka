@@ -6,6 +6,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers.River
 import com.github.navikt.tbd_libs.rapids_and_rivers.River.PacketListener
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageProblems
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.micrometer.core.instrument.MeterRegistry
 import kotlinx.coroutines.runBlocking
@@ -35,6 +36,21 @@ internal class KlageBehovløser(
         River(rapidsConnection).apply(rapidFilter).register(this)
     }
 
+    override fun onError(
+        problems: MessageProblems,
+        context: MessageContext,
+        metadata: MessageMetadata,
+    ) {
+        logger.error("Skjønte ikke meldinga\n$problems")
+    }
+
+    override fun onSevere(
+        error: MessageProblems.MessageException,
+        context: MessageContext,
+    ) {
+        logger.error("Skjønte ikke meldinga\n$error")
+    }
+
     override fun onPacket(
         packet: JsonMessage,
         context: MessageContext,
@@ -56,17 +72,11 @@ internal class KlageBehovløser(
                 }
             } ?: emptyList()
         val prosessFullmektig: ProsessFullmektig? =
-            packet["prosessFullmektig"].takeIf(JsonNode::isObject).let {
+            packet["prosessFullmektig"].takeIf(JsonNode::isObject)?.let {
                 ProsessFullmektig(
-                    id =
-                        it?.get("id")?.let { id ->
-                            PersonIdentId(
-                                verdi = id["verdi"].asText(),
-                            )
-                        },
-                    navn = it?.get("navn")?.asText(),
+                    navn = it.get("navn")?.asText(),
                     adresse =
-                        it?.get("adresse")?.let { adresse ->
+                        it.get("adresse")?.let { adresse ->
                             Adresse(
                                 addresselinje1 = adresse.get("adresselinje1")?.asText(),
                                 addresselinje2 = adresse.get("adresselinje2")?.asText(),
@@ -80,7 +90,7 @@ internal class KlageBehovløser(
             }
         withLoggingContext("behandlingId" to "$behandlingId") {
             runBlocking {
-                klageKlient.registrerKlage(
+                klageKlient.oversendKlageAnke(
                     behandlingId = behandlingId,
                     ident = ident,
                     fagsakId = fagsakId,
@@ -94,6 +104,7 @@ internal class KlageBehovløser(
                     true -> {
                         logger.info { "Klage er oversendt til klageinstans $behandlingId" }
                         packet["@løsning"] = mapOf("OversendelseKlageinstans" to "OK")
+                        context.publish(key = ident, message = packet.toJson())
                     }
 
                     false -> {
