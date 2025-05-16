@@ -27,8 +27,28 @@ internal class KlageBehovløser(
                 it.requireAll("@behov", listOf("OversendelseKlageinstans"))
                 it.forbid("@løsning")
             }
-            validate { it.requireKey("ident", "behandlingId", "fagsakId", "behandlendeEnhet", "hjemler") }
-            validate { it.interestedIn("tilknyttedeJournalposter", "prosessFullmektig") }
+            validate {
+                it.requireKey(
+                    "ident",
+                    "behandlingId",
+                    "fagsakId",
+                    "behandlendeEnhet",
+                    "hjemler",
+                )
+            }
+            validate {
+                it.interestedIn(
+                    "tilknyttedeJournalposter",
+                    "prosessfullmektigNavn",
+                    "prosessfullmektigIdent",
+                    "prosessfullmektigAdresselinje1",
+                    "prosessfullmektigAdresselinje2",
+                    "prosessfullmektigAdresselinje3",
+                    "prosessfullmektigPostnummer",
+                    "prosessfullmektigPoststed",
+                    "prosessfullmektigLand",
+                )
+            }
         }
     }
 
@@ -71,23 +91,41 @@ internal class KlageBehovløser(
                     )
                 }
             } ?: emptyList()
-        val prosessFullmektig: ProsessFullmektig? =
-            packet["prosessFullmektig"].takeIf(JsonNode::isObject)?.let {
+        val prosessfullmektigNavn = packet["prosessfullmektigNavn"].takeIf(JsonNode::isTextual)?.asText()
+        val prosessfullmektigIdent = packet["prosessfullmektigIdent"].takeIf(JsonNode::isTextual)?.asText()
+        val prosessfullmektigAdresselinje1 =
+            packet["prosessfullmektigAdresselinje1"].takeIf(JsonNode::isTextual)?.asText()
+        val prosessfullmektigAdresselinje2 =
+            packet["prosessfullmektigAdresselinje2"].takeIf(JsonNode::isTextual)?.asText()
+        val prosessfullmektigAdresselinje3 =
+            packet["prosessfullmektigAdresselinje3"].takeIf(JsonNode::isTextual)?.asText()
+        val prosessfullmektigPostnummer = packet["prosessfullmektigPostnummer"].takeIf(JsonNode::isTextual)?.asText()
+        val prosessfullmektigPoststed = packet["prosessfullmektigPoststed"].takeIf(JsonNode::isTextual)?.asText()
+        val prosessfullmektigLand = packet["prosessfullmektigLand"].takeIf(JsonNode::isTextual)?.asText()
+
+        val prosessFullmektig =
+            if (!prosessfullmektigNavn.isNullOrBlank() || !prosessfullmektigIdent.isNullOrBlank()) {
                 ProsessFullmektig(
-                    navn = it.get("navn")?.asText(),
+                    id = if (!prosessfullmektigIdent.isNullOrBlank()) PersonIdentId(verdi = prosessfullmektigIdent) else null,
+                    navn = prosessfullmektigNavn,
                     adresse =
-                        it.get("adresse")?.let { adresse ->
+                        if (!prosessfullmektigLand.isNullOrBlank()) {
                             Adresse(
-                                addresselinje1 = adresse.get("adresselinje1")?.asText(),
-                                addresselinje2 = adresse.get("adresselinje2")?.asText(),
-                                addresselinje3 = adresse.get("adresselinje3")?.asText(),
-                                postnummer = adresse.get("postnummer")?.asText(),
-                                poststed = adresse.get("poststed")?.asText(),
-                                land = adresse.get("land")!!.asText(),
+                                addresselinje1 = prosessfullmektigAdresselinje1,
+                                addresselinje2 = prosessfullmektigAdresselinje2,
+                                addresselinje3 = prosessfullmektigAdresselinje3,
+                                postnummer = prosessfullmektigPostnummer,
+                                poststed = prosessfullmektigPoststed,
+                                land = prosessfullmektigLand,
                             )
+                        } else {
+                            null
                         },
                 )
+            } else {
+                null
             }
+
         withLoggingContext("behandlingId" to "$behandlingId") {
             runBlocking {
                 klageKlient.oversendKlageAnke(

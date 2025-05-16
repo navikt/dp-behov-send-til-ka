@@ -104,8 +104,9 @@ internal data class PersonIdent(
 )
 
 data class ProsessFullmektig(
-    val navn: String?,
-    val adresse: Adresse?,
+    val id: PersonIdentId? = null,
+    val navn: String? = null,
+    val adresse: Adresse? = null,
 )
 
 data class PersonIdentId(

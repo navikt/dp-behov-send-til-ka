@@ -73,6 +73,52 @@ class KlageBehovløserTest {
     }
 
     @Test
+    fun `Skal løse behov med fullmektig dersom filter matcher`() {
+        val klageKlient =
+            mockk<KlageHttpKlient>().also {
+                coEvery {
+                    it.oversendKlageAnke(
+                        behandlingId = behandlingId,
+                        ident = ident,
+                        fagsakId = fagsakId,
+                        behandlendeEnhet = behandlendeEnhet,
+                        hjemler = hjemler,
+                        prosessFullmektig = prosessFullmektig,
+                    )
+                } returns Result.success(HttpStatusCode.OK)
+            }
+
+        KlageBehovløser(
+            rapidsConnection = testRapid,
+            klageKlient = klageKlient,
+        )
+        testRapid.sendBehovMedFullmektig()
+        testRapid.inspektør.size shouldBe 1
+        testRapid.inspektør.message(0).toString() shouldEqualSpecifiedJsonIgnoringOrder
+            """
+            {
+                "@event_name" : "behov",
+                "@behov" : [ "OversendelseKlageinstans" ],
+                "behandlingId" : "$behandlingId",
+                "ident" : "$ident",
+                "fagsakId" : "$fagsakId",
+                "behandlendeEnhet" : "$behandlendeEnhet",
+                "hjemler": ["FTRL_4_2", "FTRL_4_9", "FTRL_4_18"],
+                "prosessfullmektigNavn": "Djevelens Advokat",
+                "prosessfullmektigAdresselinje1": "Sydenveien 1",
+                "prosessfullmektigAdresselinje2": "Poste restante",
+                "prosessfullmektigAdresselinje3": "Teisen postkontor",
+                "prosessfullmektigPostnummer": "0666",
+                "prosessfullmektigPoststed": "Oslo",
+                "prosessfullmektigLand": "NO",
+                "@løsning": {
+                    "OversendelseKlageinstans": "OK"
+                }
+            }
+            """.trimIndent()
+    }
+
+    @Test
     fun `Bad request fører til runtime exception`() {
         val klageKlient =
             KlageHttpKlient(
@@ -106,6 +152,30 @@ class KlageBehovløserTest {
                 "fagsakId" : "$fagsakId",
                 "behandlendeEnhet" : "$behandlendeEnhet",
                 "hjemler": ["FTRL_4_2", "FTRL_4_9", "FTRL_4_18"]
+            }
+            
+            """.trimIndent(),
+        )
+    }
+
+    private fun TestRapid.sendBehovMedFullmektig() {
+        this.sendTestMessage(
+            """
+            {
+                "@event_name" : "behov",
+                "@behov" : [ "OversendelseKlageinstans" ],
+                "behandlingId" : "$behandlingId",
+                "ident" : "$ident",
+                "fagsakId" : "$fagsakId",
+                "behandlendeEnhet" : "$behandlendeEnhet",
+                "hjemler": ["FTRL_4_2", "FTRL_4_9", "FTRL_4_18"],
+                "prosessfullmektigNavn": "Djevelens Advokat",
+                "prosessfullmektigAdresselinje1": "Sydenveien 1",
+                "prosessfullmektigAdresselinje2": "Poste restante",
+                "prosessfullmektigAdresselinje3": "Teisen postkontor",
+                "prosessfullmektigPostnummer": "0666",
+                "prosessfullmektigPoststed": "Oslo",
+                "prosessfullmektigLand": "NO"
             }
             
             """.trimIndent(),
