@@ -15,8 +15,8 @@ internal object Configuration {
     private val defaultProperties =
         ConfigurationMap(
             mapOf(
-                "RAPID_APP_NAME" to "dp-behov-send-ti-ka",
-                "KAFKA_CONSUMER_GROUP_ID" to "dp-behov-send-ti-ka-v1",
+                "RAPID_APP_NAME" to "dp-behov-send-til-ka",
+                "KAFKA_CONSUMER_GROUP_ID" to "dp-behov-send-til-ka-v1",
                 "KAFKA_RAPID_TOPIC" to "teamdagpenger.rapid.v1",
                 "KAFKA_RESET_POLICY" to "LATEST",
                 "KLAGE_API_URL" to "http://kabal-api",
