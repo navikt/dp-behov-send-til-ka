@@ -78,6 +78,11 @@ internal class KlageBehovløser(
         meterRegistry: MeterRegistry,
     ) {
         val behandlingId = packet["behandlingId"].asText()
+        if (behandlingId in setOf("0196fcc3-75e1-7846-ab74-de339f20ebc3", "0196fcd0-875b-7868-a783-68a16e98b6d7")) {
+            logger.info { "Skipper oversendelse av klagebehandling $behandlingId" }
+            return
+        }
+
         val ident = packet["ident"].asText()
         val fagsakId = packet["fagsakId"].asText()
         val behandlendeEnhet = packet["behandlendeEnhet"].asText()
@@ -140,14 +145,14 @@ internal class KlageBehovløser(
             }.also { resultat ->
                 when (resultat.isSuccess) {
                     true -> {
-                        logger.info { "Klage er oversendt til klageinstans $behandlingId" }
+                        logger.info { "Klage er oversendt til klageinstans for behandling $behandlingId" }
                         packet["@løsning"] = mapOf("OversendelseKlageinstans" to "OK")
                         context.publish(key = ident, message = packet.toJson())
                     }
 
                     false -> {
                         logger.info { "Feil ved oversendelse til klageinstans for behandling $behandlingId" }
-                        throw RuntimeException("Feil ved oversendelse av klage til klageinstans $behandlingId")
+                        throw RuntimeException("Feil ved oversendelse av klage til klageinstans for behandling $behandlingId")
                     }
                 }
             }
