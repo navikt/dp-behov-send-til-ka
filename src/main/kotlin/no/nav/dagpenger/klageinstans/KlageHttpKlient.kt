@@ -64,7 +64,7 @@ class KlageHttpKlient(
                 )
             }.status
         }.onFailure { throwable ->
-            logger.error(throwable) { "Kall til kabal api feilet for klagebehandling med id: $behandlingId" }
+            logger.error(throwable) { "Kall til kabal-api feilet for klagebehandling med id: $behandlingId. $throwable" }
         }
     }
 }
