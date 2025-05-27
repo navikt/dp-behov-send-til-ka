@@ -35,6 +35,7 @@ class KlageHttpKlient(
         fagsakId: String,
         behandlendeEnhet: String,
         hjemler: List<String>,
+        kommentar: String? = null,
         tilknyttedeJournalposter: List<Journalposter> = emptyList(),
         prosessFullmektig: ProsessFullmektig? = null,
     ): Result<HttpStatusCode> {
@@ -59,6 +60,7 @@ class KlageHttpKlient(
                 tilknyttedeJournalposter = tilknyttedeJournalposter,
                 hjemler = hjemler,
                 prosessFullmektig = prosessFullmektig,
+                kommentar = kommentar,
             )
         sikkerlogg.info { "KlageinstansOversendelse for klagebehandling $behandlingId: $body" }
         return runCatching {

@@ -15,7 +15,6 @@ import java.time.LocalDate
 class KlageBehovløserTest {
     private val testRapid = TestRapid()
 
-    val type = "ANKE"
     val behandlingId = UUIDv7.ny().toString()
     val ident = "11111111111"
     val fagsakId = UUIDv7.ny().toString()
@@ -34,6 +33,7 @@ class KlageBehovløserTest {
                     land = "NO",
                 ),
         )
+    val kommentar = "kult"
 
     @Test
     fun `Skal løse behov dersom filter matcher`() {
@@ -48,6 +48,7 @@ class KlageBehovløserTest {
                         behandlendeEnhet = behandlendeEnhet,
                         hjemler = hjemler,
                         opprettet = nå,
+                        kommentar = kommentar,
                     )
                 } returns Result.success(HttpStatusCode.OK)
             }
@@ -69,6 +70,7 @@ class KlageBehovløserTest {
                 "behandlendeEnhet" : "$behandlendeEnhet",
                 "hjemler": ["FTRL_4_2", "FTRL_4_9", "FTRL_4_18"],
                 "opprettet": "$nå",
+                "kommentar": "$kommentar",
                 "@løsning": {
                     "OversendelseKlageinstans": "OK"
                 }
@@ -161,6 +163,7 @@ class KlageBehovløserTest {
                 "behandlendeEnhet" : "$behandlendeEnhet",
                 "hjemler": ["FTRL_4_2", "FTRL_4_9", "FTRL_4_18"],
                 "opprettet": "$når",
+                "kommentar": "$kommentar",
                 "prosessfullmektigNavn": null,
                 "prosessfullmektigAdresselinje1": null,
                 "prosessfullmektigAdresselinje2": null,

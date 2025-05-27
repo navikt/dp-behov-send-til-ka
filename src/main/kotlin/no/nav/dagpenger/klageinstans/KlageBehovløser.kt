@@ -40,6 +40,7 @@ internal class KlageBehovløser(
             }
             validate {
                 it.interestedIn(
+                    "kommentar",
                     "tilknyttedeJournalposter",
                     "prosessfullmektigNavn",
                     "prosessfullmektigIdent",
@@ -99,6 +100,7 @@ internal class KlageBehovløser(
                     )
                 }
             } ?: emptyList()
+        val kommentar = packet["kommentar"].takeIf(JsonNode::isTextual)?.asText()
         val prosessfullmektigNavn = packet["prosessfullmektigNavn"].takeIf(JsonNode::isTextual)?.asText()
         val prosessfullmektigIdent = packet["prosessfullmektigIdent"].takeIf(JsonNode::isTextual)?.asText()
         val prosessfullmektigAdresselinje1 =
@@ -145,6 +147,7 @@ internal class KlageBehovløser(
                     tilknyttedeJournalposter = tilknyttedeJournalposter,
                     prosessFullmektig = prosessFullmektig,
                     opprettet = opprettet,
+                    kommentar = kommentar,
                 )
             }.also { resultat ->
                 when (resultat.isSuccess) {
