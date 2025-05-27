@@ -11,6 +11,7 @@ import io.ktor.http.HttpStatusCode
 import io.prometheus.metrics.model.registry.PrometheusRegistry
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 
 class KlageHttpKlientTest {
     private val prometheusRegistry = PrometheusRegistry()
@@ -36,6 +37,7 @@ class KlageHttpKlientTest {
 
     @Test
     fun `Oversend klage til klageinstans`() {
+        val nå = LocalDate.now()
         var requestBody: String? = null
         val mockEngine =
             MockEngine { request ->
@@ -67,6 +69,7 @@ class KlageHttpKlientTest {
                     behandlendeEnhet = behandlendeEnhet,
                     hjemler = hjemler,
                     prosessFullmektig = prosessFullmektig,
+                    opprettet = nå,
                 )
             }
         resultat shouldBe Result.success(HttpStatusCode.OK)
@@ -103,6 +106,7 @@ class KlageHttpKlientTest {
                     "FTRL_4_18"
                   ],
                   "forrigeBehandlendeEnhet": "$behandlendeEnhet",
+                  "brukersKlageMottattVedtaksinstans": "$nå",
                   "tilknyttedeJournalposter": [],
                   "ytelse": "DAG_DAG"
                 }
@@ -137,6 +141,7 @@ class KlageHttpKlientTest {
                     behandlendeEnhet = behandlendeEnhet,
                     hjemler = hjemler,
                     prosessFullmektig = prosessFullmektig,
+                    opprettet = LocalDate.now(),
                 )
             }
         resultat.isFailure shouldBe true

@@ -10,6 +10,7 @@ import io.ktor.http.HttpStatusCode
 import io.mockk.coEvery
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 
 class KlageBehovløserTest {
     private val testRapid = TestRapid()
@@ -36,6 +37,7 @@ class KlageBehovløserTest {
 
     @Test
     fun `Skal løse behov dersom filter matcher`() {
+        val nå = LocalDate.now()
         val klageKlient =
             mockk<KlageHttpKlient>().also {
                 coEvery {
@@ -45,6 +47,7 @@ class KlageBehovløserTest {
                         fagsakId = fagsakId,
                         behandlendeEnhet = behandlendeEnhet,
                         hjemler = hjemler,
+                        opprettet = nå,
                     )
                 } returns Result.success(HttpStatusCode.OK)
             }
@@ -53,7 +56,7 @@ class KlageBehovløserTest {
             rapidsConnection = testRapid,
             klageKlient = klageKlient,
         )
-        testRapid.sendBehov()
+        testRapid.sendBehov(nå)
         testRapid.inspektør.size shouldBe 1
         testRapid.inspektør.message(0).toString() shouldEqualSpecifiedJsonIgnoringOrder
             """
@@ -65,6 +68,7 @@ class KlageBehovløserTest {
                 "fagsakId" : "$fagsakId",
                 "behandlendeEnhet" : "$behandlendeEnhet",
                 "hjemler": ["FTRL_4_2", "FTRL_4_9", "FTRL_4_18"],
+                "opprettet": "$nå",
                 "@løsning": {
                     "OversendelseKlageinstans": "OK"
                 }
@@ -74,6 +78,7 @@ class KlageBehovløserTest {
 
     @Test
     fun `Skal løse behov med fullmektig dersom filter matcher`() {
+        val nå = LocalDate.now()
         val klageKlient =
             mockk<KlageHttpKlient>().also {
                 coEvery {
@@ -84,6 +89,7 @@ class KlageBehovløserTest {
                         behandlendeEnhet = behandlendeEnhet,
                         hjemler = hjemler,
                         prosessFullmektig = prosessFullmektig,
+                        opprettet = nå,
                     )
                 } returns Result.success(HttpStatusCode.OK)
             }
@@ -92,7 +98,7 @@ class KlageBehovløserTest {
             rapidsConnection = testRapid,
             klageKlient = klageKlient,
         )
-        testRapid.sendBehovMedFullmektig()
+        testRapid.sendBehovMedFullmektig(nå)
         testRapid.inspektør.size shouldBe 1
         testRapid.inspektør.message(0).toString() shouldEqualSpecifiedJsonIgnoringOrder
             """
@@ -104,6 +110,7 @@ class KlageBehovløserTest {
                 "fagsakId" : "$fagsakId",
                 "behandlendeEnhet" : "$behandlendeEnhet",
                 "hjemler": ["FTRL_4_2", "FTRL_4_9", "FTRL_4_18"],
+                "opprettet": "$nå",
                 "prosessfullmektigNavn": "Djevelens Advokat",
                 "prosessfullmektigAdresselinje1": "Sydenveien 1",
                 "prosessfullmektigAdresselinje2": "Poste restante",
@@ -120,6 +127,7 @@ class KlageBehovløserTest {
 
     @Test
     fun `Bad request fører til runtime exception`() {
+        val nå = LocalDate.now()
         val klageKlient =
             KlageHttpKlient(
                 klageApiUrl = "http://localhost:8080",
@@ -137,11 +145,11 @@ class KlageBehovløserTest {
             klageKlient = klageKlient,
         )
         shouldThrow<RuntimeException> {
-            testRapid.sendBehov()
+            testRapid.sendBehov(nå)
         }
     }
 
-    private fun TestRapid.sendBehov() {
+    private fun TestRapid.sendBehov(når: LocalDate) {
         this.sendTestMessage(
             """
             {
@@ -152,6 +160,7 @@ class KlageBehovløserTest {
                 "fagsakId" : "$fagsakId",
                 "behandlendeEnhet" : "$behandlendeEnhet",
                 "hjemler": ["FTRL_4_2", "FTRL_4_9", "FTRL_4_18"],
+                "opprettet": "$når",
                 "prosessfullmektigNavn": null,
                 "prosessfullmektigAdresselinje1": null,
                 "prosessfullmektigAdresselinje2": null,
@@ -165,7 +174,7 @@ class KlageBehovløserTest {
         )
     }
 
-    private fun TestRapid.sendBehovMedFullmektig() {
+    private fun TestRapid.sendBehovMedFullmektig(når: LocalDate) {
         this.sendTestMessage(
             """
             {
@@ -176,6 +185,7 @@ class KlageBehovløserTest {
                 "fagsakId" : "$fagsakId",
                 "behandlendeEnhet" : "$behandlendeEnhet",
                 "hjemler": ["FTRL_4_2", "FTRL_4_9", "FTRL_4_18"],
+                "opprettet": "$når",
                 "prosessfullmektigNavn": "Djevelens Advokat",
                 "prosessfullmektigAdresselinje1": "Sydenveien 1",
                 "prosessfullmektigAdresselinje2": "Poste restante",

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.River
 import com.github.navikt.tbd_libs.rapids_and_rivers.River.PacketListener
+import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDate
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageProblems
@@ -34,6 +35,7 @@ internal class KlageBehovløser(
                     "fagsakId",
                     "behandlendeEnhet",
                     "hjemler",
+                    "opprettet",
                 )
             }
             validate {
@@ -85,6 +87,7 @@ internal class KlageBehovløser(
 
         val ident = packet["ident"].asText()
         val fagsakId = packet["fagsakId"].asText()
+        val opprettet = packet["opprettet"].asLocalDate()
         val behandlendeEnhet = packet["behandlendeEnhet"].asText()
         val hjemler = packet["hjemler"].map { it.asText() }
         val tilknyttedeJournalposter: List<Journalposter> =
@@ -141,6 +144,7 @@ internal class KlageBehovløser(
                     hjemler = hjemler,
                     tilknyttedeJournalposter = tilknyttedeJournalposter,
                     prosessFullmektig = prosessFullmektig,
+                    opprettet = opprettet,
                 )
             }.also { resultat ->
                 when (resultat.isSuccess) {
