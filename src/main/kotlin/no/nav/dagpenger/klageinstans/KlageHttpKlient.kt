@@ -56,6 +56,7 @@ class KlageHttpKlient(
                                 fagsystem = "DAGPENGER",
                             ),
                         kildeReferanse = behandlingId,
+                        brukersKlageMottattVedtaksinstans = behandlendeEnhet,
                         forrigeBehandlendeEnhet = behandlendeEnhet,
                         tilknyttedeJournalposter = tilknyttedeJournalposter,
                         hjemler = hjemler,
