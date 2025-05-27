@@ -20,6 +20,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 private val logger = KotlinLogging.logger {}
+private val sikkerlogg = KotlinLogging.logger("tjenestekall")
 
 class KlageHttpKlient(
     private val klageApiUrl: String,
@@ -36,33 +37,34 @@ class KlageHttpKlient(
         tilknyttedeJournalposter: List<Journalposter> = emptyList(),
         prosessFullmektig: ProsessFullmektig? = null,
     ): Result<HttpStatusCode> {
+        val body =
+            KlageinstansOversendelse(
+                type = type,
+                sakenGjelder =
+                    PersonIdent(
+                        id =
+                            PersonIdentId(
+                                verdi = ident,
+                            ),
+                    ),
+                fagsak =
+                    Fagsak(
+                        fagsakId = fagsakId,
+                        fagsystem = "DAGPENGER",
+                    ),
+                kildeReferanse = behandlingId,
+                brukersKlageMottattVedtaksinstans = behandlendeEnhet,
+                forrigeBehandlendeEnhet = behandlendeEnhet,
+                tilknyttedeJournalposter = tilknyttedeJournalposter,
+                hjemler = hjemler,
+                prosessFullmektig = prosessFullmektig,
+            )
+        sikkerlogg.info { "KlageinstansOversendelse for klagebehandling $behandlingId: $body" }
         return runCatching {
             httpClient.post(urlString = "$klageApiUrl/api/oversendelse/v4/sak") {
                 header(HttpHeaders.Authorization, "Bearer ${tokenProvider.invoke()}")
                 header(HttpHeaders.ContentType, ContentType.Application.Json)
-                setBody(
-                    KlageinstansOversendelse(
-                        type = type,
-                        sakenGjelder =
-                            PersonIdent(
-                                id =
-                                    PersonIdentId(
-                                        verdi = ident,
-                                    ),
-                            ),
-                        fagsak =
-                            Fagsak(
-                                fagsakId = fagsakId,
-                                fagsystem = "DAGPENGER",
-                            ),
-                        kildeReferanse = behandlingId,
-                        brukersKlageMottattVedtaksinstans = behandlendeEnhet,
-                        forrigeBehandlendeEnhet = behandlendeEnhet,
-                        tilknyttedeJournalposter = tilknyttedeJournalposter,
-                        hjemler = hjemler,
-                        prosessFullmektig = prosessFullmektig,
-                    ),
-                )
+                setBody(body)
             }.status
         }.onFailure { throwable ->
             logger.error(throwable) { "Kall til kabal-api feilet for klagebehandling: $behandlingId" }
