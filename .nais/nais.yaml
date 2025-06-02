@@ -39,3 +39,11 @@ spec:
     outbound:
       external:
         - host: {{ kabal.host }}
+  observability:
+    logging:
+      destinations:
+        - id: loki
+        - id: elastic
+    autoInstrumentation:
+      enabled: true
+      runtime: java
