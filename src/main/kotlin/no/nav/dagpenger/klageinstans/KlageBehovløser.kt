@@ -13,7 +13,6 @@ import io.micrometer.core.instrument.MeterRegistry
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import mu.withLoggingContext
-import java.time.LocalDate
 
 private val logger = KotlinLogging.logger {}
 
@@ -81,10 +80,8 @@ internal class KlageBehovløser(
         meterRegistry: MeterRegistry,
     ) {
         val behandlingId = packet["behandlingId"].asText()
-        if (behandlingId in setOf("01971124-9c2d-7082-8786-36708d71d0db", "0197109a-37b4-7f6d-88d1-da8443e9d664") &&
-            packet["opprettet"].asLocalDate() > LocalDate.now()
-        ) {
-            logger.info { "Skipper oversendelse av klagebehandling $behandlingId pga feil i dato for klage mottatt" }
+        if (behandlingId in setOf("01987e33-098e-780c-92d4-c2698223e333")) {
+            logger.info { "Skipper oversendelse av klagebehandling $behandlingId pga feil i hjemler" }
             return
         }
 
