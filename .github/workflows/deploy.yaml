@@ -7,12 +7,6 @@ on:
     branches-ignore:
       - 'dependabot/**'
 
-permissions: # Sjekk https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs
-  contents: "write"
-  checks: "write"
-  pull-requests: "write"
-  id-token: "write"
-
 jobs:
   build:
     name: Build and publish Docker image
@@ -38,7 +32,6 @@ jobs:
 
       - name: docker-build-push
         uses: nais/docker-build-push@v0
-        if: github.ref == 'refs/heads/main'
         id: docker-build-push
         with:
           team: teamdagpenger
@@ -51,7 +44,6 @@ jobs:
 
   deploy-dev:
     permissions:
-      contents: "read"
       id-token: "write"
     name: Deploy to dev
     needs: [ build ]
