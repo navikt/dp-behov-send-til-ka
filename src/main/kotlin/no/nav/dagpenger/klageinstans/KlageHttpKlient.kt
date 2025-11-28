@@ -64,11 +64,12 @@ class KlageHttpKlient(
             )
         sikkerlogg.info { "KlageinstansOversendelse for klagebehandling $behandlingId: $body" }
         return runCatching {
-            httpClient.post(urlString = "$klageApiUrl/api/oversendelse/v4/sak") {
-                header(HttpHeaders.Authorization, "Bearer ${tokenProvider.invoke()}")
-                header(HttpHeaders.ContentType, ContentType.Application.Json)
-                setBody(body)
-            }.status
+            httpClient
+                .post(urlString = "$klageApiUrl/api/oversendelse/v4/sak") {
+                    header(HttpHeaders.Authorization, "Bearer ${tokenProvider.invoke()}")
+                    header(HttpHeaders.ContentType, ContentType.Application.Json)
+                    setBody(body)
+                }.status
         }.onFailure { throwable ->
             logger.error(throwable) { "Kall til kabal-api feilet for klagebehandling: $behandlingId" }
         }
