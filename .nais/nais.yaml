@@ -37,6 +37,9 @@ spec:
 
   accessPolicy:
     outbound:
+      rules:
+        - application: logging
+          namespace: nais-system
       external:
         - host: {{ kabal.host }}
   observability:
