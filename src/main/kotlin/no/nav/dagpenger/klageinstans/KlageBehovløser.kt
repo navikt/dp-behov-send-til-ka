@@ -63,14 +63,14 @@ internal class KlageBehovløser(
         context: MessageContext,
         metadata: MessageMetadata,
     ) {
-        logger.error("Skjønte ikke meldinga\n$problems")
+        logger.error{"Skjønte ikke meldinga\n$problems"}
     }
 
     override fun onSevere(
         error: MessageProblems.MessageException,
         context: MessageContext,
     ) {
-        logger.error("Skjønte ikke meldinga\n$error")
+        logger.error{"Skjønte ikke meldinga\n$error"}
     }
 
     override fun onPacket(
@@ -80,8 +80,8 @@ internal class KlageBehovløser(
         meterRegistry: MeterRegistry,
     ) {
         val behandlingId = packet["behandlingId"].asText()
-        if (behandlingId in setOf("01987e33-098e-780c-92d4-c2698223e333")) {
-            logger.info { "Skipper oversendelse av klagebehandling $behandlingId pga feil i hjemler" }
+        if (behandlingId in setOf("019ae488-ddb4-7abe-8a66-9ec57a24f3c3")) {
+            logger.info { "Skipper oversendelse av klagebehandling $behandlingId" }
             return
         }
 
