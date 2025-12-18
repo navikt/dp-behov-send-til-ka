@@ -20,6 +20,11 @@ class KlageBehovløserTest {
     val fagsakId = UUIDv7.ny().toString()
     val behandlendeEnhet = "4408"
     val hjemler = listOf("FTRL_4_2", "FTRL_4_9", "FTRL_4_18")
+    val tilknyttedeJournalposter =
+        listOf(
+            Journalposter(journalpostId = "jp1", type = "BRUKERS_KLAGE"),
+            Journalposter(journalpostId = "jp2", type = "OPPRINNELIG_VEDTAK"),
+        )
     val prosessFullmektig =
         ProsessFullmektig(
             navn = "Djevelens Advokat",
@@ -49,6 +54,7 @@ class KlageBehovløserTest {
                         hjemler = hjemler,
                         opprettet = nå,
                         kommentar = kommentar,
+                        tilknyttedeJournalposter = tilknyttedeJournalposter,
                     )
                 } returns Result.success(HttpStatusCode.OK)
             }
@@ -69,6 +75,16 @@ class KlageBehovløserTest {
                 "fagsakId" : "$fagsakId",
                 "behandlendeEnhet" : "$behandlendeEnhet",
                 "hjemler": ["FTRL_4_2", "FTRL_4_9", "FTRL_4_18"],
+                "tilknyttedeJournalposter": [
+                    {
+                        "journalpostId": "jp1",
+                        "type": "BRUKERS_KLAGE"
+                    },
+                    {
+                        "journalpostId": "jp2",
+                        "type": "OPPRINNELIG_VEDTAK"
+                    }
+                ],
                 "opprettet": "$nå",
                 "kommentar": "$kommentar",
                 "@løsning": {
@@ -162,6 +178,16 @@ class KlageBehovløserTest {
                 "fagsakId" : "$fagsakId",
                 "behandlendeEnhet" : "$behandlendeEnhet",
                 "hjemler": ["FTRL_4_2", "FTRL_4_9", "FTRL_4_18"],
+                "tilknyttedeJournalposter": [
+                    {
+                        "journalpostId": "jp1",
+                        "type": "BRUKERS_KLAGE"
+                    },
+                    {
+                        "journalpostId": "jp2",
+                        "type": "OPPRINNELIG_VEDTAK"
+                    }
+                ],
                 "opprettet": "$når",
                 "kommentar": "$kommentar",
                 "prosessfullmektigNavn": null,

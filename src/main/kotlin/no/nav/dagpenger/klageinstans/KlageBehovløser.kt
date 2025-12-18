@@ -63,14 +63,14 @@ internal class KlageBehovløser(
         context: MessageContext,
         metadata: MessageMetadata,
     ) {
-        logger.error{"Skjønte ikke meldinga\n$problems"}
+        logger.error { "Skjønte ikke meldinga\n$problems" }
     }
 
     override fun onSevere(
         error: MessageProblems.MessageException,
         context: MessageContext,
     ) {
-        logger.error{"Skjønte ikke meldinga\n$error"}
+        logger.error { "Skjønte ikke meldinga\n$error" }
     }
 
     override fun onPacket(
