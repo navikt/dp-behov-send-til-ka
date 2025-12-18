@@ -80,7 +80,7 @@ internal class KlageBehovløser(
         meterRegistry: MeterRegistry,
     ) {
         val behandlingId = packet["behandlingId"].asText()
-        if (behandlingId in setOf("019ae488-ddb4-7abe-8a66-9ec57a24f3c3")) {
+        if (behandlingId in setOf("019b2712-1bff-7474-b005-5be09fc47d7a")) {
             logger.info { "Skipper oversendelse av klagebehandling $behandlingId" }
             return
         }
