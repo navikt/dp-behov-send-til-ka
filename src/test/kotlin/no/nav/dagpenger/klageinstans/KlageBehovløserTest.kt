@@ -8,6 +8,7 @@ import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respondBadRequest
 import io.ktor.http.HttpStatusCode
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -24,6 +25,7 @@ class KlageBehovløserTest {
         listOf(
             Journalposter(journalpostId = "jp1", type = "BRUKERS_KLAGE"),
             Journalposter(journalpostId = "jp2", type = "OPPRINNELIG_VEDTAK"),
+            Journalposter(journalpostId = "jp3", type = "KLAGE_VEDTAK"),
         )
     val prosessFullmektig =
         ProsessFullmektig(
@@ -73,20 +75,7 @@ class KlageBehovløserTest {
                 "behandlingId" : "$behandlingId",
                 "ident" : "$ident",
                 "fagsakId" : "$fagsakId",
-                "behandlendeEnhet" : "$behandlendeEnhet",
-                "hjemler": ["FTRL_4_2", "FTRL_4_9", "FTRL_4_18"],
-                "tilknyttedeJournalposter": [
-                    {
-                        "journalpostId": "jp1",
-                        "type": "BRUKERS_KLAGE"
-                    },
-                    {
-                        "journalpostId": "jp2",
-                        "type": "OPPRINNELIG_VEDTAK"
-                    }
-                ],
                 "opprettet": "$nå",
-                "kommentar": "$kommentar",
                 "@løsning": {
                     "OversendelseKlageinstans": "OK"
                 }
@@ -117,6 +106,17 @@ class KlageBehovløserTest {
             klageKlient = klageKlient,
         )
         testRapid.sendBehovMedFullmektig(nå)
+        coVerify(exactly = 1) {
+            klageKlient.oversendKlageAnke(
+                behandlingId = behandlingId,
+                ident = ident,
+                fagsakId = fagsakId,
+                behandlendeEnhet = behandlendeEnhet,
+                hjemler = hjemler,
+                prosessFullmektig = prosessFullmektig,
+                opprettet = nå,
+            )
+        }
         testRapid.inspektør.size shouldBe 1
         testRapid.inspektør.message(0).toString() shouldEqualSpecifiedJsonIgnoringOrder
             """
@@ -129,13 +129,6 @@ class KlageBehovløserTest {
                 "behandlendeEnhet" : "$behandlendeEnhet",
                 "hjemler": ["FTRL_4_2", "FTRL_4_9", "FTRL_4_18"],
                 "opprettet": "$nå",
-                "prosessfullmektigNavn": "Djevelens Advokat",
-                "prosessfullmektigAdresselinje1": "Sydenveien 1",
-                "prosessfullmektigAdresselinje2": "Poste restante",
-                "prosessfullmektigAdresselinje3": "Teisen postkontor",
-                "prosessfullmektigPostnummer": "0666",
-                "prosessfullmektigPoststed": "Oslo",
-                "prosessfullmektigLand": "NO",
                 "@løsning": {
                     "OversendelseKlageinstans": "OK"
                 }
@@ -186,6 +179,10 @@ class KlageBehovløserTest {
                     {
                         "journalpostId": "jp2",
                         "type": "OPPRINNELIG_VEDTAK"
+                    },
+                    {
+                        "journalpostId": "jp3",
+                        "type": "KLAGE_VEDTAK"
                     }
                 ],
                 "opprettet": "$når",
