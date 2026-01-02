@@ -18,7 +18,7 @@ internal object Configuration {
                 "RAPID_APP_NAME" to "dp-behov-send-til-ka",
                 "KAFKA_CONSUMER_GROUP_ID" to "dp-behov-send-til-ka-v1",
                 "KAFKA_RAPID_TOPIC" to "teamdagpenger.rapid.v1",
-                "KAFKA_EXTRA_TOPIC" to "behandling-events.v1",
+                "KAFKA_EXTRA_TOPIC" to "klage.behandling-events.v1",
                 "KAFKA_RESET_POLICY" to "LATEST",
                 "KLAGE_API_URL" to "http://kabal-api",
                 "KLAGE_API_SCOPE" to "api://dev-gcp.todo.todo/.default",
