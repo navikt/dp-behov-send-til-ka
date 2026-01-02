@@ -23,6 +23,7 @@ internal class ApplicationBuilder(
                         tokenProvider = Configuration.tokenProvider,
                     ),
             )
+            KlageVedtakMottak(rapidsConnection = rapidsConnection)
         }
     }
 
